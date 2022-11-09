@@ -55,6 +55,7 @@ function Home(props: any) {
           if (idOrder === key) {
             return (itemOrder = order[idOrder] + 1);
           }
+          return null;
         });
       }
       amountCart();
@@ -83,6 +84,7 @@ function Home(props: any) {
           if (idWishList === key) {
             return (wishList = wishList[idWishList]);
           }
+          return null;
         });
       }
       if (infoWishList) {
@@ -181,6 +183,7 @@ function Home(props: any) {
       .catch((error) => {
         console.log(error);
       });
+    //eslint-disable-next-line
   }, []);
   return (
     <>

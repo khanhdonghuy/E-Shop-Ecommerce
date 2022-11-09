@@ -22,12 +22,12 @@ function Detail(props: any) {
 
   const getIdCmt = (id: string) => {
     setIdCmt(id);
-  }
+  };
 
   const getCmt = (data: any) => {
     const dataCmt = comments.concat(data);
     setComments(dataCmt);
-  }
+  };
   useEffect(() => {
     api
       .get("/blog/detail/" + idBlog)
@@ -38,6 +38,7 @@ function Detail(props: any) {
       .catch((error) => {
         console.log(error);
       });
+    //eslint-disable-next-line
   }, [comments.length]);
   return (
     <div className="col-sm-9">
@@ -69,8 +70,7 @@ function Detail(props: any) {
             />
           </a>
           <p>{data ? data.content : ""}</p>
-          <div className="pager-area">
-          </div>
+          <div className="pager-area"></div>
         </div>
       </div>
       <Foo idBlog={idBlog} />

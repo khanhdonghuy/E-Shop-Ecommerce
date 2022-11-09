@@ -65,6 +65,7 @@ function DetailProduct(props: any) {
       .catch((error) => {
         console.log(error);
       });
+    //eslint-disable-next-line
   }, []);
 
   useEffect(() => {

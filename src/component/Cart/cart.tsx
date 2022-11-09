@@ -42,6 +42,7 @@ function Cart(props: any) {
         Orders[idInput] = parseFloat(dataCart[idInput] + 1);
         localStorage.setItem("infoCart", JSON.stringify(Orders));
       }
+      return null;
     });
   };
 
@@ -62,6 +63,7 @@ function Cart(props: any) {
           localStorage.setItem("infoCart", JSON.stringify(Orders));
         }
       }
+      return null;
     });
   };
 
@@ -159,6 +161,7 @@ function Cart(props: any) {
                 </tr>
               );
             }
+            return null;
           });
         });
       }
@@ -177,6 +180,7 @@ function Cart(props: any) {
       .catch((error) => {
         console.log(error);
       });
+    //eslint-disable-next-line
   }, []);
   return (
     <div className="col-sm-9 padding-right">

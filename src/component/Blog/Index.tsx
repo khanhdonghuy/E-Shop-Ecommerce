@@ -57,7 +57,7 @@ function Blog() {
         );
       });
     }
-  }
+  };
   return (
     <>
       <div className="col-sm-9">

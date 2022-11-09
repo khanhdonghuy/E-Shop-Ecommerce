@@ -303,10 +303,10 @@ function EditProduct(props: any) {
       )
     );
     deleteImage.map((value, key) => {
-      formData.append("avatarCheckBox[]", value);
+      return formData.append("avatarCheckBox[]", value);
     });
     Object.keys(avatar).map((item, i) => {
-      formData.append("file[]", avatar[item]);
+      return formData.append("file[]", avatar[item]);
     });
     let errorSubmits: errorSubmit = {};
     let flag = true;
@@ -331,6 +331,7 @@ function EditProduct(props: any) {
               errorSubmits.avatar =
                 "Avatar: dung lượng ảnh phải lớn hơn 1MB hoặc không đúng định dạng ảnh";
             }
+            return null;
           });
         }
       }
@@ -364,6 +365,7 @@ function EditProduct(props: any) {
       .catch((error) => {
         console.log(error);
       });
+    //eslint-disable-next-line
   }, []);
 
   useEffect(() => {

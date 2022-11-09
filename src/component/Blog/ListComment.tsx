@@ -3,7 +3,7 @@ function ListComment(props: any) {
 
   const handleClickReply = (e: any) => {
     props.getIdCmt(e.target.id);
-  }
+  };
   return (
     <>
       {comments && comments.length > 0
@@ -78,10 +78,12 @@ function ListComment(props: any) {
                         </li>
                       );
                     }
+                    return null;
                   })}
                 </div>
               );
             }
+            return null;
           })
         : ""}
     </>

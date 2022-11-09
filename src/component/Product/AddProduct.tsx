@@ -117,7 +117,7 @@ function AddProduct(props: any) {
   formData.append("sale", inputs.sale);
 
   Object.keys(avatar).map((item: any, i) => {
-    formData.append("file[]", String(avatar[item]));
+    return formData.append("file[]", String(avatar[item]));
   });
   const handleSubmit = (e: any) => {
     e.preventDefault();
@@ -168,6 +168,7 @@ function AddProduct(props: any) {
             errorSubmits.avatar =
               "Avatar: dung lượng ảnh phải lớn hơn 1MB hoặc không đúng định dạng ảnh";
           }
+          return null;
         });
       }
     }

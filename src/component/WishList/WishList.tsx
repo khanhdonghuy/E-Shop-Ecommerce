@@ -55,6 +55,7 @@ function WishList(props: any) {
           if (idOrder === key) {
             return (itemOrder = order[idOrder] + 1);
           }
+          return null;
         });
       }
       amountCart();
@@ -155,6 +156,7 @@ function WishList(props: any) {
                 </div>
               );
             }
+            return null;
           });
         });
       }
@@ -171,6 +173,7 @@ function WishList(props: any) {
       .catch((error) => {
         console.log(error);
       });
+    //eslint-disable-next-line
   }, []);
   return (
     <div className="col-sm-9 padding-right">

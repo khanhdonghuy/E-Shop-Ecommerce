@@ -19,7 +19,7 @@ function Foo(props: any) {
     api.get(`/blog/rate/${idBlog}`).then((res) => {
       if (res.data.data.length !== 0) {
         Object.keys(res.data.data).map((value) => {
-          listRate.push(res.data.data[value].rate);
+          return listRate.push(res.data.data[value].rate);
         });
         for (let i = 0; i < listRate.length; i++) {
           totalRate += listRate[i];
@@ -32,6 +32,7 @@ function Foo(props: any) {
         setCountVote(0);
       }
     });
+    //eslint-disable-next-line
   }, []);
 
   const checkLogin = (e: any) => {
