@@ -2,8 +2,15 @@ import { useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { UserContext } from "./UserContext";
 function Header() {
+  interface userType {
+    countCart?: number;
+    countWishList?: number;
+    showAmountCart?: (data: number) => void;
+    showAmountWishList?: (data: number) => void;
+  }
   const navigate = useNavigate();
-  const user: any = useContext(UserContext);
+  const user: userType = useContext(UserContext);
+
   const renderAccount = () => {
     const checkLogin = localStorage.getItem("checkLogin");
     if (checkLogin) {

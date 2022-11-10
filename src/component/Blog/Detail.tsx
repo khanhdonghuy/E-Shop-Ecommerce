@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import api from "../API/api";
 import Comment from "./Comment";
 import ListComment from "./ListComment";
 import Foo from "./Rate";
 
-function Detail(props: any) {
+function Detail() {
   interface state {
     data: {
       title: string;
@@ -17,14 +17,14 @@ function Detail(props: any) {
   const params = useParams();
   const idBlog = params.id;
   const [data, setData] = useState<state["data"]>();
-  const [comments, setComments] = useState([]);
+  const [comments, setComments] = useState<any[]>([]);
   const [idCmt, setIdCmt] = useState<string | undefined>();
 
   const getIdCmt = (id: string) => {
     setIdCmt(id);
   };
 
-  const getCmt = (data: any) => {
+  const getCmt = (data: any[]) => {
     const dataCmt = comments.concat(data);
     setComments(dataCmt);
   };

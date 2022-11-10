@@ -3,12 +3,18 @@ import { Link } from "react-router-dom";
 import { UserContext } from "./UserContext";
 import api from "../API/api";
 
-function Home(props: any) {
-  let order: any = {};
-  let wishList: any = {};
+function Home() {
+  interface userType {
+    countCart?: number;
+    countWishList?: number;
+    showAmountCart?: (data: number) => void;
+    showAmountWishList?: (data: number) => void;
+  }
+  let order: { [key: string]: number } = {};
+  let wishList: { [key: string]: number } = {};
   let amountCartHeader = 0;
   let amountWishListHeader = 0;
-  const user: any = useContext(UserContext);
+  const user: userType = useContext(UserContext);
   const [dataProduct, setDataProduct] = useState<any[]>([]);
   const [countCart, setCountCart] = useState<number>();
   const [countWishList, setCountWishList] = useState<number>();
@@ -25,7 +31,7 @@ function Home(props: any) {
     }
   };
   showAmountCart();
-  user.showAmountCart(countCart);
+  user.showAmountCart!(countCart!);
 
   const showAmountWishList = () => {
     const infoWishList = localStorage.getItem("infoWishList");
@@ -39,11 +45,12 @@ function Home(props: any) {
     }
   };
   showAmountWishList();
-  user.showAmountWishList(countWishList);
+  user.showAmountWishList!(countWishList!);
 
-  const addProduct = (e: any) => {
+  const addProduct = (event: React.MouseEvent<HTMLAnchorElement>) => {
     if (dataProduct) {
-      const idOrder: string = e.target.id;
+      const target = event.target as typeof event.target & { id: string };
+      const idOrder = target.id;
       let itemOrder = 1;
       const infoCart = localStorage.getItem("infoCart");
       if (amountCartHeader === 0) {
@@ -70,22 +77,14 @@ function Home(props: any) {
     }
   };
 
-  const addWishList = (e: any) => {
+  const addWishList = (event: React.MouseEvent<HTMLAnchorElement>) => {
     if (dataProduct) {
-      const idWishList: string = e.target.id;
+      const target = event.target as typeof event.target & { id: string };
+      const idWishList = target.id;
       let itemWishList = 1;
       const infoWishList = localStorage.getItem("infoWishList");
       if (amountWishListHeader === 0) {
         setCountWishList(1);
-      }
-      if (infoWishList) {
-        wishList = JSON.parse(infoWishList);
-        Object.keys(wishList).map((key) => {
-          if (idWishList === key) {
-            return (wishList = wishList[idWishList]);
-          }
-          return null;
-        });
       }
       if (infoWishList) {
         const checkWishList: string[] = [];

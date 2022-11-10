@@ -2,19 +2,24 @@ import { useRef, useState } from "react";
 import api from "../API/api";
 import FormErrors from "../Layout/FormErrors";
 
-function Comment(props: any) {
+interface Props {
+  idCmt?: string;
+  idBlog?: string;
+  getCmt: (data: any[]) => void;
+}
+function Comment({ idCmt, idBlog, getCmt }: Props) {
   interface errorSubmit {
     login?: string;
     comment?: string;
   }
-  const focusComment = useRef<any>();
-  const idCmt = props.idCmt;
-  const idBlog = props.idBlog;
-  const [inputComment, setInputComment] = useState<string | undefined>();
+  const focusComment = useRef<HTMLTextAreaElement>(null);
+  const [inputComment, setInputComment] = useState<string>();
   const [errors, setErrors] = useState({});
 
-  const handleSubmit = (e: any) => {
-    e.preventDefault();
+  const handleSubmit = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    event.preventDefault();
     const errorSubmit: errorSubmit = {};
     let flag = true;
     const checkLogin = localStorage.getItem("checkLogin");
@@ -41,19 +46,19 @@ function Comment(props: any) {
         },
       };
       const formData = new FormData();
-      formData.append("id_blog", idBlog);
+      formData.append("id_blog", idBlog!);
       formData.append("id_user", userData.authUser.id);
-      formData.append("id_comment", idCmt || 0);
+      formData.append("id_comment", idCmt|| String(0));
       formData.append("comment", inputComment!);
       formData.append("image_user", userData.authUser.avatar);
       formData.append("name_user", userData.authUser.name);
       api
         .post(url, formData, config)
         .then((res) => {
-          props.getCmt(res.data.data);
+          getCmt(res.data.data);
           setInputComment("");
-          focusComment.current.focus();
           setErrors("");
+          focusComment.current?.focus();
         })
         .catch((error) => {
           console.log(error);
@@ -70,7 +75,7 @@ function Comment(props: any) {
         <span>*</span>
         <textarea
           id="cmt"
-          onChange={(e) => setInputComment(e.target.value)}
+          onChange={(event) => setInputComment(event.target.value)}
           name="message"
           rows={11}
           placeholder="Input your comment ..."

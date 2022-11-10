@@ -2,7 +2,7 @@ import React, { FormEvent, useState } from "react";
 import api from "../API/api";
 import FormErrors from "../Layout/FormErrors";
 
-function Account(props: any) {
+function Account() {
   interface file {
     name?: string;
     size?: number;
@@ -22,28 +22,31 @@ function Account(props: any) {
     level: "0",
   });
   const [errors, setErrors] = useState({});
-  const [avatarFile, setAvatarFile] = useState<any>();
+  const [avatarFile, setAvatarFile] = useState<string>();
   const [fileImage, setFileImage] = useState<file>({});
   const arrayType = ["png", "jpg", "jpeg", "PNG", "JPG"];
 
-  const handleInput = (e: { target: HTMLInputElement }) => {
-    const nameInput = e.target.name;
-    const value = e.target.value;
+  const handleInput = (event: { target: HTMLInputElement }) => {
+    const nameInput = event.target.name;
+    const value = event.target.value;
     setInputs((state) => ({ ...state, [nameInput]: value }));
   };
 
-  const handleUserInputFile = (e: { target: HTMLInputElement }) => {
-    const file = e.target.files;
+  const handleUserInputFile = (event: { target: HTMLInputElement }) => {
+    const file = event.target.files;
     const reader = new FileReader();
-    reader.onload = (e) => {
-      setAvatarFile(e.target!.result);
+    reader.onload = (event: ProgressEvent<FileReader>) => {
+      const { result } = event.target as typeof event.target & {
+        result: string;
+      };
+      setAvatarFile(result);
       setFileImage(file![0]);
     };
     reader.readAsDataURL(file![0]);
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     const idUser = userData.authUser.id;
     const url = `/user/update/${idUser}`;
     const accessToken = userData.tokenUser;
@@ -60,7 +63,7 @@ function Account(props: any) {
     formData.append("password", inputs.password);
     formData.append("phone", inputs.phone);
     formData.append("address", inputs.address);
-    formData.append("avatar", avatarFile);
+    formData.append("avatar", avatarFile!);
 
     const errorSubmits: errorSubmit = {};
     let flag = true;
@@ -93,8 +96,7 @@ function Account(props: any) {
     if (!flag) {
       setErrors(errorSubmits);
     } else {
-      api.post(url, formData, config).then((res: any) => {
-        // console.log(res);
+      api.post(url, formData, config).then((res) => {
         if (res.data.errors) {
           setErrors(res.data.errors);
         } else {

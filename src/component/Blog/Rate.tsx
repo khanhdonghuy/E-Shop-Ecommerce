@@ -3,11 +3,13 @@ import StarRatings from "react-star-ratings";
 import api from "../API/api";
 import FormErrors from "../Layout/FormErrors";
 
-function Foo(props: any) {
+interface Props {
+  idBlog?: string;
+}
+function Foo({ idBlog }: Props) {
   interface errorSubmit {
     login?: string;
   }
-  const idBlog = props.idBlog;
   const [rating, setRating] = useState<number>(0);
   const [errors, setErrors] = useState({});
   const [countVote, setCountVote] = useState<number | undefined>();
@@ -35,8 +37,8 @@ function Foo(props: any) {
     //eslint-disable-next-line
   }, []);
 
-  const checkLogin = (e: any) => {
-    e.preventDefault();
+  const checkLogin = (event: React.MouseEvent<HTMLLIElement>) => {
+    event.preventDefault();
     const errorSubmits: errorSubmit = {};
     let flag = true;
     const checkLogin = localStorage.getItem("checkLogin");
@@ -63,7 +65,7 @@ function Foo(props: any) {
       },
     };
     const formData = new FormData();
-    formData.append("blog_id", idBlog);
+    formData.append("blog_id", idBlog!);
     formData.append("user_id", idUser);
     formData.append("rate", String(newRating));
     api.post(url, formData, config).then((res) => {});

@@ -2,52 +2,65 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../API/api";
 
-function Cart(props: any) {
+function Cart() {
+  interface state {
+    dataCartType: {
+      [key: string]: number;
+    };
+  }
   const infoCart = localStorage.getItem("infoCart");
-  const [dataProduct, setDataProduct] = useState<any[]>([]);
-  const [dataCart, setDataCart] = useState<any>({});
+  const [dataProduct, setDataProduct] = useState<[]>();
+  const [dataCart, setDataCart] = useState<state["dataCartType"]>({});
   const tax = 2;
-  let Orders: any = {};
+  let Orders: {
+    [key: string]: number;
+  } = {};
   let subTotal = 0;
 
-  const handleInput = (e: any) => {
-    const idInput = e.target.id;
-    const value = parseFloat(e.target.value);
+  const handleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const target = event.target as typeof event.target & {
+      id: string;
+      value: string;
+    };
+    const idInput = target.id;
+    const value = parseFloat(target.value);
     if (value === 0) {
       delete Orders[idInput];
       setDataCart(Orders);
       localStorage.setItem("infoCart", JSON.stringify(Orders));
     } else {
-      setDataCart((state: any) => ({ ...state, [idInput]: value }));
+      setDataCart((state) => ({ ...state, [idInput]: value }));
       Orders[idInput] = value;
       localStorage.setItem("infoCart", JSON.stringify(Orders));
     }
   };
 
-  const deleteProduct = (e: any) => {
-    const idInput = e.target.id;
-    delete Orders[idInput];
+  const deleteProduct = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    const target = event.target as typeof event.target & { id: string };
+    delete Orders[target.id];
     setDataCart(Orders);
     localStorage.setItem("infoCart", JSON.stringify(Orders));
   };
 
-  const upProduct = (e: any) => {
-    const idInput = e.target.id;
+  const upProduct = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    const target = event.target as typeof event.target & { id: string };
+    const idInput = target.id;
     Object.keys(Orders).map((key, value) => {
       if (key === idInput) {
-        setDataCart((state: any) => ({
+        setDataCart((state) => ({
           ...state,
           [idInput]: dataCart[idInput] + 1,
         }));
-        Orders[idInput] = parseFloat(dataCart[idInput] + 1);
+        Orders[idInput] = dataCart[idInput] + 1;
         localStorage.setItem("infoCart", JSON.stringify(Orders));
       }
       return null;
     });
   };
 
-  const downProduct = (e: any) => {
-    const idInput = e.target.id;
+  const downProduct = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    const target = event.target as typeof event.target & { id: string };
+    const idInput = target.id;
     Object.keys(Orders).map((key, value) => {
       if (key === idInput) {
         if (dataCart[idInput] === 1) {
@@ -55,7 +68,7 @@ function Cart(props: any) {
           setDataCart(Orders);
           localStorage.setItem("infoCart", JSON.stringify(Orders));
         } else {
-          setDataCart((state: any) => ({
+          setDataCart((state) => ({
             ...state,
             [idInput]: dataCart[idInput] - 1,
           }));
@@ -70,9 +83,7 @@ function Cart(props: any) {
   const handleCheckOut = () => {
     api
       .post("/product/cart", dataCart)
-      .then((res) => {
-        // console.log(res);
-      })
+      .then((res) => {})
       .catch((error) => {
         console.log(error);
       });
@@ -82,87 +93,100 @@ function Cart(props: any) {
     if (dataProduct !== undefined) {
       if (infoCart) {
         Orders = JSON.parse(infoCart);
-        return Object.keys(dataCart).map((key, value) => {
-          return dataProduct.map((item: any, i) => {
-            const avatar = JSON.parse(item.image.split(","));
-            if (key === String(item.id)) {
-              subTotal += dataCart[key]
-                ? dataCart[key] * item.price
-                : item.price * Orders[key];
-              return (
-                <tr id={key} key={i}>
-                  <td className="cart_product">
-                    <a href="# ">
-                      <img
-                        style={{ width: "200px", height: "200px" }}
-                        src={`http://localhost/laravel/laravel/public/upload/user/product/${item.id_user}/${avatar[0]}`}
-                        alt=""
-                      />
-                    </a>
-                  </td>
-                  <td className="cart_description">
-                    <h4>
-                      <a href="# ">{item.name}</a>
-                    </h4>
-                    <p>Web ID: 1089772</p>
-                  </td>
-                  <td className="cart_price">
-                    <p>${item.price}</p>
-                  </td>
-                  <td className="cart_quantity">
-                    <div className="cart_quantity_button">
+        return Object.keys(dataCart).map((key, index) => {
+          return dataProduct.map(
+            (
+              value: {
+                id: number;
+                image: any;
+                price: number;
+                id_user: string;
+                name: string;
+              },
+              i
+            ) => {
+              const avatar: string[] = JSON.parse(value.image.split(","));
+              console.log(typeof value.image);
+
+              if (key === String(value.id)) {
+                subTotal += dataCart[key]
+                  ? dataCart[key] * value.price
+                  : value.price * Orders[key];
+                return (
+                  <tr id={key} key={i}>
+                    <td className="cart_product">
+                      <a href="# ">
+                        <img
+                          style={{ width: "200px", height: "200px" }}
+                          src={`http://localhost/laravel/laravel/public/upload/user/product/${value.id_user}/${avatar[0]}`}
+                          alt=""
+                        />
+                      </a>
+                    </td>
+                    <td className="cart_description">
+                      <h4>
+                        <a href="# ">{value.name}</a>
+                      </h4>
+                      <p>Web ID: 1089772</p>
+                    </td>
+                    <td className="cart_price">
+                      <p>${value.price}</p>
+                    </td>
+                    <td className="cart_quantity">
+                      <div className="cart_quantity_button">
+                        <a
+                          href="# "
+                          id={key}
+                          onClick={upProduct}
+                          className="cart_quantity_up"
+                        >
+                          {" "}
+                          +{" "}
+                        </a>
+                        <input
+                          id={key}
+                          onChange={handleInput}
+                          className="cart_quantity_input"
+                          type="number"
+                          name="quantity"
+                          value={dataCart[key] ? dataCart[key] : Orders[key]}
+                          autoComplete="off"
+                          size={2}
+                        />
+                        <a
+                          href="# "
+                          id={key}
+                          onClick={downProduct}
+                          className="cart_quantity_down"
+                        >
+                          -
+                        </a>
+                      </div>
+                    </td>
+                    <td className="cart_total">
+                      <p className="cart_total_price">
+                        $
+                        {dataCart[key]
+                          ? dataCart[key] * value.price
+                          : Orders[key] * value.price}
+                      </p>
+                    </td>
+                    <td className="cart_delete">
                       <a
                         href="# "
                         id={key}
-                        onClick={upProduct}
-                        className="cart_quantity_up"
+                        onClick={deleteProduct}
+                        className="cart_quantity_delete"
                       >
-                        {" "}
-                        +{" "}
+                        <i className="fa fa-times" />
                       </a>
-                      <input
-                        id={key}
-                        onChange={handleInput}
-                        className="cart_quantity_input"
-                        type="number"
-                        name="quantity"
-                        value={dataCart[key] ? dataCart[key] : Orders[key]}
-                        autoComplete="off"
-                        size={2}
-                      />
-                      <a
-                        href="# "
-                        id={key}
-                        onClick={downProduct}
-                        className="cart_quantity_down"
-                      >
-                        -
-                      </a>
-                    </div>
-                  </td>
-                  <td className="cart_total">
-                    <p className="cart_total_price">
-                      $
-                      {dataCart[key]
-                        ? dataCart[key] * item.price
-                        : Orders[key] * item.price}
-                    </p>
-                  </td>
-                  <td className="cart_delete">
-                    <a
-                      href="# "
-                      id={key}
-                      onClick={deleteProduct}
-                      className="cart_quantity_delete"
-                    >
-                      <i className="fa fa-times" />
-                    </a>
-                  </td>
-                </tr>
-              );
+                    </td>
+                  </tr>
+                );
+              }
+              return null;
             }
-            return null;
-          });
+          );
         });
       }
     }

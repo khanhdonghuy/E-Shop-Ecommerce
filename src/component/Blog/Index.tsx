@@ -16,46 +16,57 @@ function Blog() {
   }, []);
   const fetchData = () => {
     if (getItem && getItem.length > 0) {
-      return getItem.map((value: any, index) => {
-        return (
-          <div key={index} className="single-blog-post">
-            <h3>{value.title}</h3>
-            <div className="post-meta">
-              <ul>
-                <li>
-                  <i className="fa fa-user" /> Mac Doe
-                </li>
-                <li>
-                  <i className="fa fa-clock-o" />{" "}
-                  {value.created_at.split(" ")[1]}
-                </li>
-                <li>
-                  <i className="fa fa-calendar" />{" "}
-                  {value.created_at.split(" ")[0]}
-                </li>
-              </ul>
-              <span>
-                <i className="fa fa-star" />
-                <i className="fa fa-star" />
-                <i className="fa fa-star" />
-                <i className="fa fa-star" />
-                <i className="fa fa-star-half-o" />
-              </span>
+      return getItem.map(
+        (
+          value: {
+            title: string;
+            created_at: string;
+            image: string;
+            description: string;
+            id: number;
+          },
+          index
+        ) => {
+          return (
+            <div key={index} className="single-blog-post">
+              <h3>{value.title}</h3>
+              <div className="post-meta">
+                <ul>
+                  <li>
+                    <i className="fa fa-user" /> Mac Doe
+                  </li>
+                  <li>
+                    <i className="fa fa-clock-o" />{" "}
+                    {value.created_at.split(" ")[1]}
+                  </li>
+                  <li>
+                    <i className="fa fa-calendar" />{" "}
+                    {value.created_at.split(" ")[0]}
+                  </li>
+                </ul>
+                <span>
+                  <i className="fa fa-star" />
+                  <i className="fa fa-star" />
+                  <i className="fa fa-star" />
+                  <i className="fa fa-star" />
+                  <i className="fa fa-star-half-o" />
+                </span>
+              </div>
+              <a href="# ">
+                <img
+                  key={index}
+                  src={`http://localhost/laravel/laravel/public/upload/Blog/image/${value.image}`}
+                  alt=""
+                />
+              </a>
+              <p>{value.description}</p>
+              <Link to={`/blog/detail/${value.id}`} className="btn btn-primary">
+                Read More
+              </Link>
             </div>
-            <a href="# ">
-              <img
-                key={index}
-                src={`http://localhost/laravel/laravel/public/upload/Blog/image/${value.image}`}
-                alt=""
-              />
-            </a>
-            <p>{value.description}</p>
-            <Link to={`/blog/detail/${value.id}`} className="btn btn-primary">
-              Read More
-            </Link>
-          </div>
-        );
-      });
+          );
+        }
+      );
     }
   };
   return (
