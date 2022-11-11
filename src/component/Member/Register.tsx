@@ -2,7 +2,7 @@ import { FormEvent, useState } from "react";
 import api from "../API/api";
 import FormErrors from "../Layout/FormErrors";
 
-function Register(props: any) {
+function Register() {
   interface file {
     name?: string;
     size?: number;
@@ -24,28 +24,38 @@ function Register(props: any) {
     level: "0",
   });
   const [errors, setErrors] = useState({});
-  const [avatar, setAvatar] = useState<any>();
+  const [avatar, setAvatar] = useState<string>();
   const [fileImage, setFileImage] = useState<file>({});
   const arrayType = ["png", "jpg", "jpeg", "PNG", "JPG"];
 
-  const handleInput = (e: any) => {
-    const nameInput = e.target.name;
-    const value = e.target.value;
+  const handleInput = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const target = event.target as typeof event.target & {
+      name: string;
+      value: string;
+    };
+    const nameInput = target.name;
+    const value = target.value;
     setInputs((state) => ({ ...state, [nameInput]: value }));
   };
 
-  const handleUserInputFile = (e: { target: HTMLInputElement }) => {
-    const file = e.target.files;
+  const handleUserInputFile = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const target = event.target as typeof event.target & {
+      files: string;
+    };
+    const file = target.files;
     const reader = new FileReader();
-    reader.onload = (e) => {
-      setAvatar(e.target ? e.target.result : "");
+    reader.onload = (event: ProgressEvent<FileReader>) => {
+      const target = event.target as typeof event.target & { result: string };
+      setAvatar(target ? target.result : "");
       setFileImage(file![0]);
     };
     reader.readAsDataURL(file![0]);
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     const data = {
       email: inputs.email,
       password: inputs.password,

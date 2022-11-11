@@ -1,30 +1,42 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import api from "../API/api";
-function DetailProduct(props: any) {
-  const brand: any = useRef().current;
-  const category: any = useRef().current;
+function DetailProduct() {
+  interface state {
+    brandCategoryList: {
+      message: string;
+      brand: { id: number; brand: string }[];
+      category: { id: number; category: string }[];
+    };
+    dataProductType: {
+      image: any;
+      id_user: string;
+      name: string;
+      id: number;
+      id_brand: number;
+      price: number;
+      detail: string;
+      company_profile: string;
+    };
+  }
+  const brand: { [key: string]: string } = {};
   const params = useParams();
   const idProduct = params.id;
-  const [brandCategory, setBrandCategory] = useState<any>("");
-  const [dataProduct, setDataProduct] = useState<any>("");
+  const [brandCategory, setBrandCategory] =
+    useState<state["brandCategoryList"]>();
+  const [dataProduct, setDataProduct] = useState<state["dataProductType"]>();
 
   const smallImage = () => {
-    if (dataProduct !== "") {
+    if (dataProduct) {
       const dataImage = JSON.parse(dataProduct.image);
-      return dataImage.map((value: any, key: number) => {
+      return dataImage.map((value: string, key: number) => {
         return (
           <a href="# " key={key}>
             <img
               id={value}
               className="choose"
               onClick={smallToMain}
-              src={
-                "http://localhost/laravel/laravel/public/upload/user/product/" +
-                dataProduct.id_user +
-                "/small_" +
-                value
-              }
+              src={`http://localhost/laravel/laravel/public/upload/user/product/${dataProduct.id_user}/small_${value}`}
               alt=""
             />
           </a>
@@ -34,25 +46,20 @@ function DetailProduct(props: any) {
   };
 
   const brandList = () => {
-    if (brandCategory !== "" && dataProduct !== "") {
-      return brandCategory.brand.map((value: any, key: number) => {
-        return brand ? (brand[value.id] = value.brand) : "";
-      });
-    }
-  };
-
-  const categoryList = () => {
-    if (brandCategory !== "") {
-      return brandCategory.category.map((value: any, key: number) => {
-        return (category[value.id] = value.category);
-      });
+    if (brandCategory?.message === "success" && dataProduct !== undefined) {
+      return brandCategory.brand.map(
+        (value: { id: number; brand: string }, key: number) => {
+          return (brand[value.id] = value.brand);
+        }
+      );
     }
   };
   brandList();
-  categoryList();
   const [linkImage, setLinkImage] = useState("");
-  const smallToMain = (e: any) => {
-    const linkImg = e.target.id;
+  const smallToMain = (event: React.MouseEvent<HTMLImageElement>) => {
+    event.preventDefault();
+    const target = event.target as typeof event.target & { id: string };
+    const linkImg = target.id;
     setLinkImage(linkImg);
   };
   useEffect(() => {
@@ -84,18 +91,16 @@ function DetailProduct(props: any) {
       <div className="col-sm-9 padding-right">
         <div className="col-md-12 padding-right">
           <div className="product-details">
-            {/*product-details*/}
             <div className="col-sm-5">
-              {/* <img src="http://localhost/laravel/laravel/public/upload/icon/new.png" className="newarrival" alt="" /> */}
               <div className="view-product">
                 <img
                   id="img_main"
-                  src={`http://localhost/laravel/laravel/public/upload/user/product/${dataProduct.id_user}/${linkImage}`}
+                  src={`http://localhost/laravel/laravel/public/upload/user/product/${dataProduct?.id_user}/${linkImage}`}
                   alt=""
                 />
                 <a
                   id="img_zoom"
-                  href={`http://localhost/laravel/laravel/public/upload/user/product/${dataProduct.id_user}/${linkImage}`}
+                  href={`http://localhost/laravel/laravel/public/upload/user/product/${dataProduct?.id_user}/${linkImage}`}
                   rel="prettyPhoto"
                 >
                   <h3>ZOOM</h3>
@@ -128,7 +133,7 @@ function DetailProduct(props: any) {
             </div>
             <div className="col-sm-7">
               <div className="product-information">
-                <h2>{dataProduct.name}</h2>
+                <h2>{dataProduct?.name}</h2>
                 <p>WEB ID : </p>
                 <span>Rating (0) :</span>
                 <form style={{ display: "inline-block" }} method="POST">
@@ -160,20 +165,20 @@ function DetailProduct(props: any) {
                     <input
                       type="text"
                       name="id_product"
-                      defaultValue={dataProduct.id}
+                      defaultValue={dataProduct?.id}
                       hidden
                     />
                     <input
                       type="text"
                       name="id_user"
-                      defaultValue={dataProduct.id_user}
+                      defaultValue={dataProduct?.id_user}
                       hidden
                     />
                   </div>
                 </form>
                 <p className="ajax-rated" />
                 <span>
-                  <span className="price">{dataProduct.price} $</span>
+                  <span className="price">{dataProduct?.price} $</span>
                   <button type="button" className="btn btn-fefault cart">
                     <i className="fa fa-shopping-cart" />
                     Add to cart
@@ -187,7 +192,12 @@ function DetailProduct(props: any) {
                 </p>
                 <p>
                   <b>Brand: </b>
-                  {brand ? brand[dataProduct.id_brand] : ""}
+                  {Object.keys(brand).map((key) => {
+                    if (String(dataProduct?.id_brand) === key) {
+                      return brand[key];
+                    }
+                    return null;
+                  })}
                 </p>
                 <p>
                   <b>Rating: </b>{" "}
@@ -227,10 +237,10 @@ function DetailProduct(props: any) {
             </div>
             <div className="tab-content">
               <div className="tab-pane fade in" id="details">
-                {dataProduct.detail}
+                {dataProduct?.detail}
               </div>
               <div className="tab-pane fade in" id="company_profile">
-                {dataProduct.company_profile}
+                {dataProduct?.company_profile}
               </div>
               <div className="tab-pane fade active in" id="reviews">
                 <div className="col-sm-12">

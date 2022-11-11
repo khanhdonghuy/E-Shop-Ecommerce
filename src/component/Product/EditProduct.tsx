@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import api from "../API/api";
 import FormErrors from "../Layout/FormErrors";
-let deleteImage: any[] = [];
-function EditProduct(props: any) {
+function EditProduct() {
+  let deleteImage: string[] = useRef([]).current;
   interface state {
-    dataProducts?: {
+    dataProducts: {
       id_category: number;
       id_brand: number;
       id_user: string;
@@ -13,11 +13,11 @@ function EditProduct(props: any) {
       name: string;
       price: number;
       sale: number;
-      image: string[];
+      image: any[];
       company: string;
       detail: string;
     };
-    input?: {
+    input: {
       category?: number;
       brand?: number;
       name?: string;
@@ -27,21 +27,26 @@ function EditProduct(props: any) {
       sale?: number;
       status?: number;
     };
+    brandCategoryList: {
+      message: string;
+      brand: { id: number; brand: string }[];
+      category: { id: number; category: string }[];
+    };
   }
   interface errorSubmit {
     name?: string;
     phone?: string;
     address?: string;
-    avatar?: string;
+    image?: string;
   }
   const navigate = useNavigate();
   const [errors, setErrors] = useState({});
   const [dataProduct, setDataProduct] = useState<state["dataProducts"]>();
-  const [dataCate_Brand, setDataCate_Brand] = useState<any>("");
+  const [brandCategoryList, setBrandCategoryList] =
+    useState<state["brandCategoryList"]>();
   const [inputs, setInputs] = useState<state["input"]>();
-  const [avatar, setAvatar] = useState<any>("");
+  const [imgProduct, setImgProduct] = useState<any>("");
   const arrayType = ["png", "jpg", "jpeg", "PNG", "JPG"];
-
   const userData = JSON.parse(localStorage["checkInfo"]);
   const params = useParams();
   const idProduct = params.id;
@@ -56,24 +61,23 @@ function EditProduct(props: any) {
     },
   };
 
-  const handleInput = (e: any) => {
-    const nameInput = e.target.name;
-    const value = e.target.value;
+  const handleInput = (
+    event: React.ChangeEvent<
+      HTMLSelectElement | HTMLTextAreaElement | HTMLInputElement
+    >
+  ) => {
+    const target = event.target as typeof event.target & {
+      name: string;
+      value: string;
+    };
+    const nameInput = target.name;
+    const value = target.value;
     setInputs((state) => ({ ...state, [nameInput]: value }));
   };
 
   const categoryItem = () => {
-    if (dataCate_Brand.message === "success") {
-      if (dataCate_Brand.category.length > 0) {
-        const listCategory = dataCate_Brand.category.map(
-          (value: any, key: number) => {
-            return (
-              <option key={key} value={value.id}>
-                {value.category}
-              </option>
-            );
-          }
-        );
+    if (brandCategoryList?.message === "success") {
+      if (brandCategoryList.category.length > 0) {
         return (
           <div className="form-group col-md-10">
             <select
@@ -86,7 +90,13 @@ function EditProduct(props: any) {
               onChange={handleInput}
               className="form-control form-control-line"
             >
-              {listCategory}
+              {brandCategoryList.category.map((value, key: number) => {
+                return (
+                  <option key={key} value={value.id}>
+                    {value.category}
+                  </option>
+                );
+              })}
             </select>
           </div>
         );
@@ -95,17 +105,8 @@ function EditProduct(props: any) {
   };
 
   const brandItem = () => {
-    if (dataCate_Brand.message === "success") {
-      if (dataCate_Brand.category.length > 0) {
-        const listBrand = dataCate_Brand.brand.map(
-          (value: any, key: number) => {
-            return (
-              <option key={key} value={value.id}>
-                {value.brand}
-              </option>
-            );
-          }
-        );
+    if (brandCategoryList?.message === "success") {
+      if (brandCategoryList.category.length > 0) {
         return (
           <div className="form-group col-md-10">
             <select
@@ -118,7 +119,13 @@ function EditProduct(props: any) {
               onChange={handleInput}
               className="form-control form-control-line"
             >
-              {listBrand}
+              {brandCategoryList.brand.map((value, key: number) => {
+                return (
+                  <option key={key} value={value.id}>
+                    {value.brand}
+                  </option>
+                );
+              })}
             </select>
           </div>
         );
@@ -179,11 +186,11 @@ function EditProduct(props: any) {
     }
   };
 
-  const handleUserInputFile = (e: any) => {
-    const avatar = e.target.files;
-    setAvatar(avatar);
+  const handleUserInputFile = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const image = event.target.files;
+    setImgProduct(image);
   };
-  const showAvatar = () => {
+  const showImageList = () => {
     if (dataProduct) {
       return dataProduct.image.map((value, key) => {
         return (
@@ -222,8 +229,9 @@ function EditProduct(props: any) {
     }
   };
 
-  const deleteImg = (e: any) => {
-    const valueImg = e.target.value;
+  const deleteImg = (event: React.MouseEvent<HTMLInputElement>) => {
+    const target = event.target as typeof event.target & { value: string };
+    const valueImg = target.value;
     if (deleteImage.length === 0) {
       deleteImage.push(valueImg);
     } else {
@@ -234,8 +242,8 @@ function EditProduct(props: any) {
       }
     }
   };
-  const handleSubmit = (e: any) => {
-    e.preventDefault();
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     const urlEdit = "/user/edit-product/" + idProduct;
     const formData = new FormData();
     formData.append(
@@ -305,31 +313,34 @@ function EditProduct(props: any) {
     deleteImage.map((value, key) => {
       return formData.append("avatarCheckBox[]", value);
     });
-    Object.keys(avatar).map((item, i) => {
-      return formData.append("file[]", avatar[item]);
+    Object.keys(imgProduct).map((item, i) => {
+      return formData.append("file[]", imgProduct[item]);
     });
     let errorSubmits: errorSubmit = {};
     let flag = true;
-    if (avatar === "") {
+    if (imgProduct === "") {
       flag = false;
-      errorSubmits.avatar = "Avatar upload: Không được để trống";
+      errorSubmits.image = "Image upload: Không được để trống";
     } else {
       if (dataProduct && deleteImage) {
-        if (avatar.length + dataProduct.image.length - deleteImage.length > 3) {
+        if (
+          imgProduct.length + dataProduct.image.length - deleteImage.length >
+          3
+        ) {
           flag = false;
-          errorSubmits.avatar = "Avatar product: Không được quá 3 hình";
+          errorSubmits.image = "Image product: Không được quá 3 hình";
         } else {
-          Object.keys(avatar).map((item: any, i: number) => {
-            const getNameFile = avatar[item].name;
-            const getSizeFile = avatar[item].size;
+          Object.keys(imgProduct).map((key, index: number) => {
+            const getNameFile = imgProduct[key].name;
+            const getSizeFile = imgProduct[key].size;
             const typeImg = getNameFile.split(".")[1];
             const checkType = arrayType.includes(typeImg);
             const errorImgFile =
               checkType === false || getSizeFile > 1024 * 1024;
             if (errorImgFile === true) {
               flag = false;
-              errorSubmits.avatar =
-                "Avatar: dung lượng ảnh phải lớn hơn 1MB hoặc không đúng định dạng ảnh";
+              errorSubmits.image =
+                "Image: dung lượng ảnh phải lớn hơn 1MB hoặc không đúng định dạng ảnh";
             }
             return null;
           });
@@ -372,7 +383,7 @@ function EditProduct(props: any) {
     api
       .get("/category-brand")
       .then((res) => {
-        setDataCate_Brand(res.data);
+        setBrandCategoryList(res.data);
       })
       .catch((error) => {
         console.log(error);
@@ -475,7 +486,7 @@ function EditProduct(props: any) {
                   <div className="col-sm-12">
                     <div className="view-product">
                       <h4>Choose image you want to delete</h4>
-                      {showAvatar()}
+                      {showImageList()}
                     </div>
                   </div>
                   <div className="form-group col-md-10">

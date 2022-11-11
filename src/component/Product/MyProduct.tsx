@@ -3,8 +3,19 @@ import { useEffect } from "react";
 import api from "../API/api";
 import { Link } from "react-router-dom";
 
-function MyProduct(props: any) {
-  const [data, setData] = useState<any>("");
+function MyProduct() {
+  interface dataType {
+    [key: string]: {
+      image: any;
+      id: number;
+      name: string;
+      id_user: string;
+      price: number;
+    };
+  }
+  const [data, setData] = useState<dataType>();
+  console.log(data);
+
   const userData = JSON.parse(localStorage["checkInfo"]);
 
   const listProduct = () => {
@@ -46,7 +57,7 @@ function MyProduct(props: any) {
               <a
                 className="btn btn-primary"
                 href="# "
-                id={data[item].id}
+                id={String(data[item].id)}
                 onClick={handleDelete}
                 aria-expanded="false"
               >
@@ -67,8 +78,9 @@ function MyProduct(props: any) {
       Accept: "application/json",
     },
   };
-  const handleDelete = (e: any) => {
-    const idCmt = e.target.id;
+  const handleDelete = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    const target = event.target as typeof event.target & { id: string };
+    const idCmt = target.id;
     api
       .get("/user/delete-product/" + idCmt, config)
       .then((res) => {

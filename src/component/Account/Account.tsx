@@ -79,7 +79,7 @@ function Account() {
       flag = false;
       errorSubmits.address = "Address: Không được để trống";
     }
-    let errorImg: boolean = false;
+    let errorImg = false;
     if (avatarFile !== "") {
       const getNameFile = fileImage.name || "";
       const getSizeFile = fileImage.size || "";

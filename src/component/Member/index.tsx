@@ -1,7 +1,7 @@
 import Login from "./Login";
 import Register from "./Register";
 
-function LoginRegis(props: any) {
+function LoginRegis() {
   return (
     <>
       <Login />

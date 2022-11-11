@@ -10,12 +10,19 @@ function Home() {
     showAmountCart?: (data: number) => void;
     showAmountWishList?: (data: number) => void;
   }
+  interface dataProductType {
+    id: number;
+    image: any;
+    price: number;
+    id_user: string;
+    name: string;
+  }
   let order: { [key: string]: number } = {};
   let wishList: { [key: string]: number } = {};
   let amountCartHeader = 0;
   let amountWishListHeader = 0;
   const user: userType = useContext(UserContext);
-  const [dataProduct, setDataProduct] = useState<any[]>([]);
+  const [dataProduct, setDataProduct] = useState<dataProductType[]>();
   const [countCart, setCountCart] = useState<number>();
   const [countWishList, setCountWishList] = useState<number>();
 
@@ -102,10 +109,10 @@ function Home() {
   };
   const productItem = () => {
     if (dataProduct) {
-      return dataProduct.map((value, key) => {
+      return dataProduct.map((value, index) => {
         const avatar = JSON.parse(value.image.split(","));
         return (
-          <div key={key} className="col-sm-4 home">
+          <div key={index} className="col-sm-4 home">
             <div className="product-image-wrapper">
               <div className="single-products">
                 <div className="productinfo text-center">
@@ -119,7 +126,7 @@ function Home() {
                   <a
                     onClick={addProduct}
                     href="# "
-                    id={value.id}
+                    id={String(value.id)}
                     className="btn btn-default add-to-cart add"
                   >
                     <i className="fa fa-shopping-cart" />
@@ -133,7 +140,7 @@ function Home() {
                     <a
                       onClick={addProduct}
                       href="# "
-                      id={value.id}
+                      id={String(value.id)}
                       className="btn btn-default add-to-cart add"
                       data-toggle="modal"
                       data-target="#myModal"
@@ -158,7 +165,7 @@ function Home() {
                     </Link>
                   </li>
                   <li>
-                    <a onClick={addWishList} id={value.id} href="#/">
+                    <a onClick={addWishList} id={String(value.id)} href="#/">
                       <i className="fa fa-plus-square" />
                       Add to wishlist
                     </a>

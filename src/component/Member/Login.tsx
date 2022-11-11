@@ -3,7 +3,15 @@ import { useNavigate } from "react-router-dom";
 import api from "../API/api";
 import FormErrors from "../Layout/FormErrors";
 
-function Login(props: any) {
+function Login() {
+  interface errorSubmit {
+    name?: string;
+    phone?: string;
+    address?: string;
+    avatar?: string;
+    email?: string;
+    password?: string;
+  }
   const navigate = useNavigate();
   const [inputs, setInputs] = useState({
     email: "",
@@ -11,32 +19,36 @@ function Login(props: any) {
     level: "0",
   });
   const [errors, setErrors] = useState({});
-  const handleInput = (e: { target: HTMLInputElement }) => {
-    const nameInput = e.target.name;
-    const value = e.target.value;
+  const handleInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const target = event.target as typeof event.target & {
+      name: string;
+      value: string;
+    };
+    const nameInput = target.name;
+    const value = target.value;
     setInputs((state) => ({ ...state, [nameInput]: value }));
   };
-  const handleSubmit = (e: any) => {
-    e.preventDefault();
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     const data = {
       email: inputs.email,
       password: inputs.password,
       level: inputs.level,
     };
-    let errorSubmit: any = {};
+    const errorSubmits: errorSubmit = {};
 
     let flag = true;
 
     if (inputs.email === "") {
       flag = false;
-      errorSubmit.email = "Email: Không được để trống";
+      errorSubmits.email = "Email: Không được để trống";
     }
     if (inputs.password === "") {
       flag = false;
-      errorSubmit.password = "Password: Không được để trống";
+      errorSubmits.password = "Password: Không được để trống";
     }
     if (!flag) {
-      setErrors(errorSubmit);
+      setErrors(errorSubmits);
     } else {
       api
         .post("/login", data)

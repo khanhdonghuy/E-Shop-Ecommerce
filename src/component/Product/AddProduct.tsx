@@ -2,18 +2,24 @@ import React, { useEffect, useState } from "react";
 import api from "../API/api";
 import FormErrors from "../Layout/FormErrors";
 
-function AddProduct(props: any) {
+function AddProduct() {
   interface errorSubmit {
     name?: string;
     phone?: string;
     address?: string;
-    avatar?: string;
+    image?: string;
     brand?: string;
     category?: string;
     price?: string;
     company?: string;
     detail?: string;
   }
+  interface brandCateListType {
+    brand: { brand: string; id: number }[];
+    category: { category: string; id: number }[];
+    message: string;
+  }
+
   const [errors, setErrors] = useState({});
   const [inputs, setInputs] = useState({
     category: "",
@@ -22,23 +28,32 @@ function AddProduct(props: any) {
     price: "",
     company: "",
     detail: "",
-    avatar: "",
     sale: "",
     status: "1",
   });
-  const [data, setData] = useState<any>("");
+  const [brandCateList, setBrandCateList] = useState<brandCateListType>();
   const userData = JSON.parse(localStorage["checkInfo"]);
+  const [imgProduct, setImgProduct] = useState<any>("");
+  const arrayType = ["png", "jpg", "jpeg", "PNG", "JPG"];
 
-  const handleInput = (e: any) => {
-    const nameInput = e.target.name;
-    const value = e.target.value;
+  const handleInput = (
+    event: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
+    const target = event.target as typeof event.target & {
+      name: string;
+      value: string;
+    };
+    const nameInput = target.name;
+    const value = target.value;
     setInputs((state) => ({ ...state, [nameInput]: value }));
   };
 
   const brandItem = () => {
-    if (data.message === "success") {
-      if (data.category.length > 0) {
-        return data.brand.map((value: any, key: number) => {
+    if (brandCateList?.message === "success") {
+      if (brandCateList.category.length > 0) {
+        return brandCateList.brand.map((value, key: number) => {
           return (
             <option key={key} value={value.id}>
               {value.brand}
@@ -50,15 +65,8 @@ function AddProduct(props: any) {
   };
 
   const categoryItem = () => {
-    if (data.message === "success") {
-      if (data.category.length > 0) {
-        const listCategory = data.category.map((value: any, key: number) => {
-          return (
-            <option key={key} value={value.id}>
-              {value.category}
-            </option>
-          );
-        });
+    if (brandCateList?.message === "success") {
+      if (brandCateList.category.length > 0) {
         return (
           <div className="form-group col-md-12">
             <select
@@ -67,7 +75,13 @@ function AddProduct(props: any) {
               name="category"
             >
               <option>Please select category</option>
-              {listCategory}
+              {brandCateList.category.map((value, key: number) => {
+                return (
+                  <option key={key} value={value.id}>
+                    {value.category}
+                  </option>
+                );
+              })}
             </select>
           </div>
         );
@@ -89,12 +103,10 @@ function AddProduct(props: any) {
     );
   };
 
-  const [avatar, setAvatar] = useState<any>("");
-  const arrayType = ["png", "jpg", "jpeg", "PNG", "JPG"];
-
-  const handleUserInputFile = (e: any) => {
-    const avatar = e.target.files;
-    setAvatar(avatar);
+  const handleUserInputFile = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const target = event.target as typeof event.target & { files: string };
+    const image = target.files;
+    setImgProduct(image);
   };
 
   const accessToken = userData.tokenUser;
@@ -116,11 +128,11 @@ function AddProduct(props: any) {
   formData.append("status", inputs.status);
   formData.append("sale", inputs.sale);
 
-  Object.keys(avatar).map((item: any, i) => {
-    return formData.append("file[]", String(avatar[item]));
+  Object.keys(imgProduct).map((key: any, index) => {
+    return formData.append("file[]", String(imgProduct[key]));
   });
-  const handleSubmit = (e: any) => {
-    e.preventDefault();
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     let errorSubmits: errorSubmit = {};
     let flag = true;
 
@@ -149,24 +161,24 @@ function AddProduct(props: any) {
       errorSubmits.detail = "Detail: Không được để trống";
     }
 
-    if (avatar === "") {
+    if (imgProduct === "") {
       flag = false;
-      errorSubmits.avatar = "Avatar: Không được để trống";
+      errorSubmits.image = "Image: Không được để trống";
     } else {
-      if (avatar.length > 3) {
+      if (imgProduct.length > 3) {
         flag = false;
-        errorSubmits.avatar = "Avatar: Không được quá 3 hình";
+        errorSubmits.image = "Image: Không được quá 3 hình";
       } else {
-        Object.keys(avatar).map((item: any, i) => {
-          const getNameFile = avatar[item].name;
-          const getSizeFile = avatar[item].size;
+        Object.keys(imgProduct).map((key: any, index) => {
+          const getNameFile = imgProduct[key].name;
+          const getSizeFile = imgProduct[key].size;
           const typeImg = getNameFile.split(".")[1];
           const checkType = arrayType.includes(typeImg);
           const errorImgFile = checkType === false || getSizeFile > 1024 * 1024;
           if (errorImgFile === true) {
             flag = false;
-            errorSubmits.avatar =
-              "Avatar: dung lượng ảnh phải lớn hơn 1MB hoặc không đúng định dạng ảnh";
+            errorSubmits.image =
+              "Image: dung lượng ảnh phải lớn hơn 1MB hoặc không đúng định dạng ảnh";
           }
           return null;
         });
@@ -190,7 +202,7 @@ function AddProduct(props: any) {
     api
       .get("/category-brand")
       .then((res) => {
-        setData(res.data);
+        setBrandCateList(res.data);
       })
       .catch((error) => {
         console.log(error);

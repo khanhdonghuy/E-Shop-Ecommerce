@@ -4,13 +4,26 @@ import { useContext, useEffect, useState } from "react";
 import api from "../API/api";
 import { UserContext } from "../Layout/UserContext";
 
-function WishList(props: any) {
-  let order: any = {};
-  let wishList: any = {};
+function WishList() {
+  interface userType {
+    countCart?: number;
+    countWishList?: number;
+    showAmountCart?: (data: number) => void;
+    showAmountWishList?: (data: number) => void;
+  }
+  interface dataProductType {
+    id: number;
+    image: any;
+    price: number;
+    id_user: string;
+    name: string;
+  }
+  let order: { [key: string]: number };
+  let wishList: { [key: string]: number };
   let amountCartHeader = 0;
   let amountWishListHeader = 0;
-  const user: any = useContext(UserContext);
-  const [dataProduct, setDataProduct] = useState<any[]>([]);
+  const user: userType = useContext(UserContext);
+  const [dataProduct, setDataProduct] = useState<dataProductType[]>();
   const [countCart, setCountCart] = useState<number>();
   const [countWishList, setCountWishList] = useState<number>();
 
@@ -26,7 +39,7 @@ function WishList(props: any) {
     }
   };
   showAmountCart();
-  user.showAmountCart(countCart);
+  user.showAmountCart!(countCart!);
   const showAmountWishList = () => {
     const infoWishList = localStorage.getItem("infoWishList");
     if (infoWishList) {
@@ -39,11 +52,12 @@ function WishList(props: any) {
     }
   };
   showAmountWishList();
-  user.showAmountWishList(countWishList);
+  user.showAmountWishList!(countWishList!);
 
-  const addProduct = (e: any) => {
+  const addProduct = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    const target = event.target as typeof event.target & { id: string };
     if (dataProduct) {
-      const idOrder: string = e.target.id;
+      const idOrder = target.id;
       let itemOrder = 1;
       const infoCart = localStorage.getItem("infoCart");
       if (amountCartHeader === 0) {
@@ -70,9 +84,10 @@ function WishList(props: any) {
     }
   };
 
-  const removeWishList = (e: any) => {
+  const removeWishList = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    const target = event.target as typeof event.target & { id: string };
     if (dataProduct) {
-      const idWishList = parseFloat(e.target.id);
+      const idWishList = parseFloat(target.id);
       const infoWishList = localStorage.getItem("infoWishList");
       if (infoWishList) {
         wishList = JSON.parse(infoWishList);
@@ -106,7 +121,7 @@ function WishList(props: any) {
                         <a
                           onClick={addProduct}
                           href="# "
-                          id={value.id}
+                          id={String(value.id)}
                           className="btn btn-default add-to-cart add"
                         >
                           <i className="fa fa-shopping-cart" />
@@ -120,7 +135,7 @@ function WishList(props: any) {
                           <a
                             onClick={addProduct}
                             href="# "
-                            id={value.id}
+                            id={String(value.id)}
                             className="btn btn-default add-to-cart add"
                             data-toggle="modal"
                             data-target="#myModal"
@@ -145,7 +160,11 @@ function WishList(props: any) {
                           </Link>
                         </li>
                         <li>
-                          <a onClick={removeWishList} id={value.id} href="# ">
+                          <a
+                            onClick={removeWishList}
+                            id={String(value.id)}
+                            href="# "
+                          >
                             <i className="fa fa-plus-square" />
                             Remove from wishlist
                           </a>

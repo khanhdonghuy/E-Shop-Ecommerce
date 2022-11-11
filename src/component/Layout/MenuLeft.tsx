@@ -2,14 +2,18 @@ import { useEffect, useState } from "react";
 import api from "../API/api";
 
 function MenuLeft() {
-  const [brandCateList, setBrandCateList] = useState<any>({});
-
+  interface brandCateListType {
+    brand: { brand: string }[];
+    category: { category: string }[];
+    message: string;
+  }
+  const [brandCateList, setBrandCateList] = useState<brandCateListType>();
   const listCategory = () => {
-    if (brandCateList.message === "success") {
+    if (brandCateList?.message === "success") {
       if (brandCateList.category.length > 0) {
-        return brandCateList.category.map((value: any, key: number) => {
+        return brandCateList.category.map((value, index) => {
           return (
-            <div key={key} className="panel panel-default">
+            <div key={index} className="panel panel-default">
               <div className="panel-heading">
                 <h4 className="panel-title">
                   <a href="# ">{value.category}</a>
@@ -23,11 +27,11 @@ function MenuLeft() {
   };
 
   const listBrand = () => {
-    if (brandCateList.message === "success") {
+    if (brandCateList?.message === "success") {
       if (brandCateList.brand.length > 0) {
-        return brandCateList.brand.map((value: any, key: number) => {
+        return brandCateList.brand.map((value, index) => {
           return (
-            <li key={key}>
+            <li key={index}>
               <a href="# ">
                 {" "}
                 <span className="pull-right"></span>
